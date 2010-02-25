@@ -170,6 +170,20 @@ module RightAws
         @location ||= @s3.interface.bucket_location(@name)
       end
       
+      def versions
+        @s3.interface.bucket_versions(@name)
+      end
+
+      def versioning
+        @s3.interface.bucket_versioning(@name)
+      end
+      
+      def versioning=(bool)
+        xmldoc = %Q{<VersioningConfiguration xmlns="http://s3.amazonaws.com/doc/2006-03-01/"><Status>#{bool ? 'Enabled' : 'Suspended'}</Status></VersioningConfiguration>}
+        @s3.interface.put_versioning(:bucket => @name, :xmldoc => xmldoc)
+      end      
+      
+      
       # Retrieves the logging configuration for a bucket. 
       # Returns a hash of {:enabled, :targetbucket, :targetprefix}
       # 

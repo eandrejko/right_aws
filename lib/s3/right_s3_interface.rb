@@ -111,6 +111,8 @@ module RightAws
       out_string << '?torrent'  if path[/[&?]torrent($|&|=)/]
       out_string << '?location' if path[/[&?]location($|&|=)/]
       out_string << '?logging'  if path[/[&?]logging($|&|=)/]  # this one is beta, no support for now
+      out_string << '?versioning'  if path[/[&?]versioning($|&|=)/]  # this one is beta, no support for now
+      out_string << '?versions'  if path[/[&?]versions($|&|=)/]  # this one is beta, no support for now
       out_string
     end
 
@@ -234,6 +236,39 @@ module RightAws
     rescue
       on_exception
     end
+    
+    # Retrieve bucket versioning
+    def bucket_versions(bucket, headers={})
+      req_hash = generate_rest_request('GET', headers.merge(:url=>"#{bucket}?versions"))
+      request_info(req_hash, S3HttpResponseBodyParser.new)
+    rescue
+      on_exception
+    end
+
+    # Retrieve bucket versioning
+    def bucket_versioning(bucket, headers={})
+      req_hash = generate_rest_request('GET', headers.merge(:url=>"#{bucket}?versioning"))
+      request_info(req_hash, S3HttpResponseBodyParser.new)
+    rescue
+      on_exception
+    end
+    
+    # Sets versioning configuration for a bucket from the XML configuration document.
+    #   params:
+    #    :bucket
+    #    :xmldoc
+    def put_versioning(params)
+      AwsUtils.mandatory_arguments([:bucket,:xmldoc], params)
+      AwsUtils.allow_only([:bucket,:xmldoc, :headers], params)
+      params[:headers] = {} unless params[:headers]
+      req_hash = generate_rest_request('PUT', params[:headers].merge(:url=>"#{params[:bucket]}?versioning", :data => params[:xmldoc]))
+      request_info(req_hash, S3HttpResponseBodyParser.new)
+    rescue
+      on_exception
+    end
+    
+    
+    
     
     # Retrieves the logging configuration for a bucket. 
       # Returns a hash of {:enabled, :targetbucket, :targetprefix}
